@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>{{ course.name }}</title>
+</head>
+<body>
+<div class="container mt-5">
+    <h2 class="text-primary">{{ course.name }}</h2>
+    <p class="text-muted">{{ course.description }}</p>
+    <hr>
+    <h4>Lessons:</h4>
+    <div class="list-group">
+        {% for lesson in course.lesson_set.all %}
+            <div class="list-group-item">
+                <h5>{{ lesson.title }}</h5>
+                <p>{{ lesson.content|truncatewords:20 }}</p>
+                <h6>Questions:</h6>
+                <ul>
+                {% for question in lesson.question_set.all %}
+                    <li>{{ question.question_text }} (Grade: {{ question.grade }})</li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% empty %}
+            <p>No lessons available.</p>
+        {% endfor %}
+    </div>
+    <a href="{% url 'onlinecourse:index' %}" class="btn btn-secondary mt-3">Back to Courses</a>
+</div>
+</body>
+</html>
