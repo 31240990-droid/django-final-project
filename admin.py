@@ -1,31 +1,26 @@
-from django.db import models
-from django.utils.timezone import now
+from django.contrib import admin
+from .models import Course, Lesson, Instructor, Learner, Enrollment, Question, Choice
+from .models import Submission
 
-# Lesson model already exists in project, we add Question linked to Lesson
-class Question(models.Model):
-    lesson = models.ForeignKey('onlinecourse.Lesson', on_delete=models.CASCADE)
-    question_text = models.CharField(max_length=200)
-    grade = models.IntegerField(default=1)
+class ChoiceInline(admin.StackedInline):
+    model = Choice
+    extra = 3
 
-    def __str__(self):
-        return self.question_text
+class QuestionInline(admin.StackedInline):
+    model = Question
+    extra = 3
 
-    def is_get_score(self, selected_ids):
-        all_answers = self.choice_set.filter(is_correct=True).count()
-        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
-        if all_answers == selected_correct:
-            return True
-        else:
-            return False
+class QuestionAdmin(admin.ModelAdmin):
+    inlines = [ChoiceInline]
+    list_display = ('question_text', 'grade')
 
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
-    is_correct = models.BooleanField(default=False)
+class LessonAdmin(admin.ModelAdmin):
+    inlines = [QuestionInline]
+    list_display = ('title',)
 
-    def __str__(self):
-        return self.choice_text
-
-class Submission(models.Model):
-    enrollment = models.ForeignKey('onlinecourse.Enrollment', on_delete=models.CASCADE)
-    choices = models.ManyToManyField(Choice)
+admin.site.register(Course)
+admin.site.register(Lesson, LessonAdmin)
+admin.site.register(Enrollment)
+admin.site.register(Question, QuestionAdmin)
+admin.site.register(Choice)
+admin.site.register(Submission)
